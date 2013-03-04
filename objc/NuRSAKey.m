@@ -28,8 +28,14 @@
 
 - (id) init
 {
+    self = [self initWithKeySize:1024];
+    return self;
+}
+
+- (id) initWithKeySize:(int) keySize
+{
     if (self = [super init]) {
-        key = RSA_generate_key(1024, RSA_F4, NULL, NULL);
+        key = RSA_generate_key(keySize, RSA_F4, NULL, NULL);
     }
     return self;
 }
