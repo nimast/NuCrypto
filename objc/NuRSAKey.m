@@ -17,6 +17,7 @@
 
 #import "NuRSAKey.h"
 #import "NuBinaryEncoding.h"
+#import "rsa.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,7 +86,7 @@
 	if (self = [super init]) {
 		const unsigned char *buffer, *next;
 		next = buffer = (const unsigned char *) [data bytes];
-		key = d2i_RSAPublicKey(NULL, &next, [data length]);		
+		key = d2i_RSAPublicKey(NULL, &next, [data length]);
 	}
 	return self;
 }
@@ -93,11 +94,10 @@
 - (NSData *) DERPublicKeyData {
 	unsigned char *buffer, *next;
 	int length = i2d_RSAPublicKey(key, NULL);
-	next = buffer = (unsigned char *) malloc (length);			
-	i2d_RSAPublicKey(key, &next);	
+	next = buffer = (unsigned char *) malloc (length);
+	i2d_RSAPublicKey(key, &next);
 	return [NSData dataWithBytes:buffer length:length];
 }
-
 
 static NSString *string_for_object(id object)
 {
@@ -167,25 +167,44 @@ static NSData *data(NSString *string)
     return [NSData dataWithHexEncodedString:string];
 }
 
-- (NSDictionary *) dictionaryRepresentation
+static id BN_bn2dictval(BIGNUM *pBIGNUM, BOOL decode)
 {
+    NSString *bigNumString =
+            [NSString stringWithCString:BN_bn2hex(pBIGNUM)
+                               encoding:NSUTF8StringEncoding];
+    if (decode) {
+        return data(bigNumString);
+    } else {
+        return bigNumString;
+    }
+}
+
+- (NSDictionary *) dictionaryRepresentationSerializeable:(BOOL)serializeable
+{
+    BOOL decode = !serializeable;
     NSMutableDictionary *representation = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                           data([NSString stringWithCString:BN_bn2hex(key->n) encoding:NSUTF8StringEncoding]), @"n",
-                                           data([NSString stringWithCString:BN_bn2hex(key->e) encoding:NSUTF8StringEncoding]), @"e",
-                                           nil];
+            BN_bn2dictval(key->n, decode), @"n",
+            BN_bn2dictval(key->e, decode), @"e",
+            nil];
+
     if (key->d) {
-        [representation setObject:data([NSString stringWithCString:BN_bn2hex(key->d) encoding:NSUTF8StringEncoding])
+        [representation setObject:BN_bn2dictval(key->d, decode)
                            forKey:@"d"];
     }
     if (key->p) {
-        [representation setObject:data([NSString stringWithCString:BN_bn2hex(key->p) encoding:NSUTF8StringEncoding])
+        [representation setObject:BN_bn2dictval(key->p, decode)
                            forKey:@"p"];
     }
     if (key->q) {
-        [representation setObject:data([NSString stringWithCString:BN_bn2hex(key->q) encoding:NSUTF8StringEncoding])
+        [representation setObject:BN_bn2dictval(key->q, decode)
                            forKey:@"q"];
     }
     return representation;
+}
+
+- (NSDictionary *) dictionaryRepresentation
+{
+    return [self dictionaryRepresentationSerializeable:NO];
 }
 
 - (NSDictionary *) publicKeyDictionaryRepresentation

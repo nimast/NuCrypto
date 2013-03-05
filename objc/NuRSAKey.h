@@ -26,6 +26,7 @@
 }
 
 - (id) init;
+- (id) initWithKeySize:(int)keySize;
 - (id) initWithModulus:(NSString *) modulus exponent:(NSString *) exponent;
 - (id) initWithDictionary:(NSDictionary *) dictionary;
 - (int) maxSize;
