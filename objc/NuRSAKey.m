@@ -202,6 +202,10 @@ static id BN_bn2dictval(BIGNUM *pBIGNUM, BOOL decode)
     return representation;
 }
 
+- (NSDictionary *) dictionaryRepresentationSerializeable {
+    return [self dictionaryRepresentationSerializeable:YES];
+}
+
 - (NSDictionary *) dictionaryRepresentation
 {
     return [self dictionaryRepresentationSerializeable:NO];

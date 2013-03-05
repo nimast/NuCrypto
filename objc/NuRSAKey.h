@@ -33,7 +33,9 @@
 - (NSString *) modulus;
 - (NSString *) exponent;
 - (NSDictionary *) dictionaryRepresentation;
+- (NSDictionary *) dictionaryRepresentationSerializeable;
 - (NSDictionary *) publicKeyDictionaryRepresentation;
+- (NSData *) DERPublicKeyData;
 - (NSData *) encryptDataWithPublicKey:(NSData *) data;
 - (NSData *) encryptDataWithPrivateKey:(NSData *) data;
 - (NSData *) decryptDataWithPublicKey:(NSData *) data;
