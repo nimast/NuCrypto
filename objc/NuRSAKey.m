@@ -96,7 +96,7 @@
 	int length = i2d_RSAPublicKey(key, NULL);
 	next = buffer = (unsigned char *) malloc (length);
 	i2d_RSAPublicKey(key, &next);
-	return [NSData dataWithBytes:buffer length:length];
+	return [NSData dataWithBytesNoCopy:buffer length:length freeWhenDone:YES];
 }
 
 static NSString *string_for_object(id object)
@@ -248,7 +248,7 @@ static id BN_bn2dictval(BIGNUM *pBIGNUM, BOOL decode)
     int maxSize = RSA_size(key);
     unsigned char *output = (unsigned char *) malloc(maxSize * sizeof(char));
     int bytes = RSA_private_decrypt([data length], [data bytes], output, key, RSA_PKCS1_PADDING);
-	return (bytes > 0) ? [NSData dataWithBytes:output length:bytes] : nil;
+	return (bytes > 0) ? [NSData dataWithBytesNoCopy:output length:bytes freeWhenDone:YES] : nil;
 }
 
 @end
